@@ -330,6 +330,7 @@
         i++;
       }, 55);
 
+      var token = null;
       function finish() {
         // draw path
         path.forEach(function (p) {
@@ -338,8 +339,8 @@
         statusBox.textContent = "Path found: " + path.length + " steps. The enemy tile is avoided (ENGAGE first, or go around).";
         // token walks the path
         var ti = 0;
-        var token = setInterval(function () {
-          if (ti >= path.length) { clearInterval(token); return; }
+        token = setInterval(function () {
+          if (ti >= path.length) { clearInterval(token); token = null; return; }
           cells.forEach(function (cl) { cl.classList.remove("is-token"); });
           cells[path[ti]].classList.add("is-token");
           ti++;
@@ -348,7 +349,7 @@
       // keep handle to cancel if reset pressed mid-run
       stopExpl = function () {
         clearInterval(t);
-        if (typeof token !== "undefined" && token) clearInterval(token);
+        if (token) { clearInterval(token); token = null; }
       };
     }
 

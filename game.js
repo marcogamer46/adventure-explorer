@@ -160,10 +160,11 @@
       }
     } else if (action === "ENGAGE") {
       var found = null;
-      [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(function (d) {
+      state.level.enemies.forEach(function (e) {
         if (found) return;
-        var e = enemyAt(r + d[0], c + d[1]);
-        if (e) found = e;
+        if (!state.defeated[keyOf(e.pos[0], e.pos[1])] && isAdjacent(r, c, e.pos[0], e.pos[1])) {
+          found = e;
+        }
       });
       if (!found) {
         msg = "ENGAGE rejected — no undefeated enemy is adjacent to you. Get beside one first.";
@@ -233,7 +234,7 @@
         if (k === exitK) { tile.classList.add("tile--exit"); tile.setAttribute("data-label", "E"); }
         if (artifactAt(r, c)) { tile.classList.add("tile--artifact"); tile.textContent = "◆"; }
         if (enemyAt(r, c)) { tile.classList.add("tile--enemy"); tile.textContent = "⚔"; }
-        if (k === posK && !state.done) tile.classList.add("is-player");
+        if (k === posK) tile.classList.add("is-player");
 
         board.appendChild(tile);
       }
@@ -274,6 +275,7 @@
       b.type = "button";
       b.disabled = state.done;
       b.title = m[0];
+      b.setAttribute("aria-label", m[0]);
       b.addEventListener("click", function () { act(m[0]); });
       box.appendChild(b);
     });
@@ -287,6 +289,7 @@
       var b = el("button", "game__act game__act--special", a[1] + " <i>" + a[0] + "</i>");
       b.type = "button";
       b.disabled = state.done;
+      b.setAttribute("aria-label", a[0]);
       b.addEventListener("click", function () { act(a[0]); });
       box.appendChild(b);
     });
@@ -336,6 +339,9 @@
   actionsRow.id = "gameActionsRow";
   root.appendChild(actionsRow);
 
+  var keys = el("p", "game__keys", "Keyboard when this game is on screen: <kbd>←↑→↓</kbd> move · <kbd>C</kbd> collect · <kbd>G</kbd> engage · <kbd>X</kbd> exit · <kbd>W</kbd> wait");
+  root.appendChild(keys);
+
   var tip = el("p", "game__tip", "");
   tip.id = "gameTip";
   root.appendChild(tip);
@@ -347,8 +353,13 @@
   feedback("Level 1 · Move east to reach the exit — then EXIT. The rules are the runtime's rules.", true);
   render();
 
-  /* ---------- keyboard shortcuts ---------- */
+  /* ---------- keyboard shortcuts (only while the game is on screen) ---------- */
+  function gameVisible() {
+    var r = root.getBoundingClientRect();
+    return r.bottom > 0 && r.top < window.innerHeight;
+  }
   document.addEventListener("keydown", function (e) {
+    if (!gameVisible()) return;      // don't steal keys/scroll elsewhere
     var map = {
       ArrowUp: "MOVE_NORTH", ArrowDown: "MOVE_SOUTH",
       ArrowLeft: "MOVE_WEST", ArrowRight: "MOVE_EAST",

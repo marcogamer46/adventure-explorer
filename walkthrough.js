@@ -60,14 +60,14 @@
         while (i < n && /[A-Za-z0-9_]/.test(src[i])) i++;
         var word = src.slice(start, i);
         var before = out.replace(/<[^>]*>/g, "").trimEnd();
-        if (KEYWORDS.has(word)) {
+        if (word === "self") {
+          out += '<span class="slf">' + word + "</span>";
+        } else if (KEYWORDS.has(word)) {
           out += '<span class="k">' + word + "</span>";
         } else if (before.endsWith("def")) {
           out += '<span class="fn">' + word + "</span>";
         } else if (before.endsWith("class")) {
           out += '<span class="cl">' + word + "</span>";
-        } else if (word === "self") {
-          out += '<span class="slf">' + word + "</span>";
         } else {
           out += word;
         }
