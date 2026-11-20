@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Build an Adventure Explorer</title>
+<meta name="description" content="A friendly, visual guide to the Adventure workbench: six Python components, seven base cases, and how it all fits together." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ======================= AMBIENT ======================= -->
+<div class="stars" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top">
+      <span class="nav__logo" aria-hidden="true">◆</span>
+      <span>Adventure&nbsp;Explorer</span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Section navigation">
+      <a href="#overview">Overview</a>
+      <a href="#world">The World</a>
+      <a href="#components">Components</a>
+      <a href="#loop">The Loop</a>
+      <a href="#actions">Actions</a>
+      <a href="#cases">7 Cases</a>
+      <a href="#example">Example</a>
+      <a href="#api">API</a>
+      <a href="#workbench">Workbench</a>
+    </nav>
+    <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__progress" id="progress"><span id="progressBar"></span></div>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="top">
+  <div class="hero__inner">
+    <div class="hero__text">
+      <p class="hero__eyebrow"><span class="dot"></span> A friendly guide to the Adventure workbench</p>
+      <h1 class="hero__title">Teach a tiny explorer<br /><em>to find its way home.</em></h1>
+      <p class="hero__sub">
+        You write six Python components — the eyes, brain, and world-builder of a little
+        robot that wanders a grid, grabs treasure, dodges enemies, and must reach the exit.
+        No engine, no magic. Just objects, state, and one decision at a time.
+      </p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#components">Meet the components</a>
+        <a class="btn btn--ghost" href="#cases">See the 7 cases</a>
+      </div>
+      <ul class="hero__stats">
+        <li><strong>6</strong> components you build</li>
+        <li><strong>7</strong> base cases to pass</li>
+        <li><strong>5</strong> core actions</li>
+        <li><strong>100%</strong> plain Python</li>
+      </ul>
+    </div>
+
+    <div class="hero__demo" aria-hidden="true">
+      <div class="demo__board" id="demoBoard">
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor tile--artifact"></div>
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor tile--exit"></div>
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor tile--enemy"></div>
+        <div class="tile tile--floor"></div>
+        <div class="tile tile--floor tile--exit"></div>
+        <div class="explorer" id="explorer"></div>
+      </div>
+      <div class="demo__caption">The explorer moves one tile per accepted action — it only goes where <em>you</em> tell it to.</div>
+    </div>
+  </div>
+</section>
+
+<main>
+<!-- ======================= OVERVIEW ======================= -->
+<section class="section" id="overview">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">The big idea</p>
+      <h2>What are you actually building?</h2>
+    </div>
+    <div class="overview">
+      <div class="overview__card reveal">
+        <h3>The challenge</h3>
+        <p>
+          A world exists: a grid of floor (<code>.</code>) and walls (<code>#</code>), with a
+          <strong>start</strong> tile and an <strong>exit</strong> tile. The explorer starts on
+          the start tile. Your job is to write the code that decides what it does next,
+          one turn at a time, until it reaches the exit.
+        </p>
+      </div>
+      <div class="overview__card reveal">
+        <h3>Your six pieces</h3>
+        <p>
+          You write <strong>two data classes</strong> (information), <strong>two generators</strong>
+          (world-building), and <strong>two brain classes</strong> (decisions). The workbench
+          provides the map, the rules, and the recording — it checks your code and shows you
+          exactly what happened on every turn.
+        </p>
+      </div>
+      <div class="overview__card reveal">
+        <h3>Why it matters</h3>
+        <p>
+          This is <strong>object design + state + making good choices</strong> in one project.
+          You'll learn to keep data and behavior separate, write deterministic generators
+          from a seed, and make decisions from a read-only snapshot — the same shape as real
+          game AI, agents, and robotics loops.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= THE WORLD ======================= -->
+<section class="section" id="world">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">Ground rules</p>
+      <h2>How the world works</h2>
+    </div>
+    <div class="world">
+      <div class="world__visual reveal">
+        <div class="minimap" id="minimap">
+          <div class="tile tile--floor tile--start" data-label="S"></div>
+          <div class="tile tile--floor"></div>
+          <div class="tile tile--floor tile--artifact"></div>
+          <div class="tile tile--floor"></div>
+          <div class="tile tile--floor tile--enemy"></div>
+          <div class="tile tile--floor"></div>
+          <div class="tile tile--floor tile--exit" data-label="E"></div>
+        </div>
+        <div class="world__legend">
+          <span><i class="lg lg--start"></i> Start (S)</span>
+          <span><i class="lg lg--exit"></i> Exit (E)</span>
+          <span><i class="lg lg--artifact"></i> Artifact</span>
+          <span><i class="lg lg--enemy"></i> Enemy</span>
+          <span><i class="lg lg--floor"></i> Floor</span>
+          <span><i class="lg lg--wall"></i> Wall</span>
+        </div>
+      </div>
+      <div class="world__terms">
+        <div class="term reveal">
+          <div class="term__icon">⊕</div>
+          <div>
+            <h3>Position</h3>
+            <p>An <code>(row, column)</code> pair. Rows and columns start at <strong>0</strong> — the top-left is <code>Position(0, 0)</code>, and moving east increases the column.</p>
+          </div>
+        </div>
+        <div class="term reveal">
+          <div class="term__icon">▦</div>
+          <div>
+            <h3>Terrain</h3>
+            <p>A rectangle of rows. <code>.</code> is walkable floor, <code>#</code> is a wall. <code>is_traversable(pos)</code> tells you if a position is in-bounds and on floor.</p>
+          </div>
+        </div>
+        <div class="term reveal">
+          <div class="term__icon">◈</div>
+          <div>
+            <h3>Start &amp; exit</h3>
+            <p>Two separate coordinates — <em>not</em> letters drawn on the map. The explorer starts at S and finishes only by returning the <code>EXIT</code> action while standing on E.</p>
+          </div>
+        </div>
+        <div class="term reveal">
+          <div class="term__icon">☷</div>
+          <div>
+            <h3>Occupancy ≠ floor</h3>
+            <p>A tile can be floor <em>and</em> hold an enemy. Traversable tells you about geometry; your controller must also think about what's currently occupying the tile.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= COMPONENTS ======================= -->
+<section class="section" id="components">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">Your code</p>
+      <h2>The six components you build</h2>
+      <p class="section__lead">Three are pure data (fields). Three are behavior (methods). Keep them separate — the workbench hooks them together.</p>
+    </div>
+
+    <div class="components">
+      <div class="component reveal" data-cat="data">
+        <div class="component__badge">Data</div>
+        <div class="component__icon">🧍</div>
+        <h3>Character</h3>
+        <p class="component__role">The explorer's identity tag.</p>
+        <pre class="sig"><code>Character(agent_id)
+@property agent_id -> str</code></pre>
+        <p class="component__note">Just carries an id. It does <em>not</em> store the position or move itself — that's the controller's job.</p>
+      </div>
+
+      <div class="component reveal" data-cat="data">
+        <div class="component__badge">Data</div>
+        <div class="component__icon">💎</div>
+        <h3>Artifact</h3>
+        <p class="component__role">A reward sitting on a tile.</p>
+        <pre class="sig"><code>Artifact(artifact_id,
+         position, value)
+@property artifact_id / position / value</code></pre>
+        <p class="component__note">Walking onto it does <em>not</em> collect it — you must return <code>COLLECT</code> with its id. It doesn't award its own points.</p>
+      </div>
+
+      <div class="component reveal" data-cat="data">
+        <div class="component__badge">Data</div>
+        <div class="component__icon">👹</div>
+        <h3>Enemy</h3>
+        <p class="component__role">A static blocker on a tile.</p>
+        <pre class="sig"><code>Enemy(enemy_id,
+       position, encounter_penalty)
+@property enemy_id / position /
+        encounter_penalty</code></pre>
+        <p class="component__note">No attack, health, or dice. Engaging it adds its penalty once, then it's cleared. You can't just walk through it.</p>
+      </div>
+
+      <div class="component reveal" data-cat="logic">
+        <div class="component__badge">Logic</div>
+        <div class="component__icon">🧠</div>
+        <h3>AgentController</h3>
+        <p class="component__role">The explorer's brain.</p>
+        <pre class="sig"><code>AgentController()
+choose_action(state, agent_id)
+        -> WorldAction</code></pre>
+        <p class="component__note">Reads the <strong>snapshot</strong>, returns exactly <strong>one</strong> action. It may keep private planning state during a run — a fresh controller is built for every run.</p>
+      </div>
+
+      <div class="component reveal" data-cat="logic">
+        <div class="component__badge">Logic</div>
+        <div class="component__icon">🗺️</div>
+        <h3>TerrainGenerator</h3>
+        <p class="component__role">Builds the floor geometry.</p>
+        <pre class="sig"><code>TerrainGenerator()
+generate_terrain(specification, seed)
+        -> Terrain</code></pre>
+        <p class="component__note">Returns a <code>Terrain</code> from a spec + seed. Same inputs ⇒ same output. It knows nothing about start, exit, or entities.</p>
+      </div>
+
+      <div class="component reveal" data-cat="logic">
+        <div class="component__badge">Logic</div>
+        <div class="component__icon">🏰</div>
+        <h3>LevelGenerator</h3>
+        <p class="component__role">Assembles the full world.</p>
+        <pre class="sig"><code>LevelGenerator(terrain_generator)
+generate_level(specification, seed)
+        -> LevelDefinition</code></pre>
+        <p class="component__note">Uses an <em>injected</em> terrain generator, picks valid endpoints, places the character and entities, and returns the initial world. Never a solution.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= THE LOOP ======================= -->
+<section class="section" id="loop">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">The game loop</p>
+      <h2>One turn at a time</h2>
+    </div>
+
+    <div class="loop">
+      <div class="loop__stage reveal">
+        <div class="loop__num">1</div>
+        <div class="loop__icon">📊</div>
+        <h3>Snapshot arrives</h3>
+        <p>The runtime hands your controller a read-only <code>WorldSnapshot</code>: the level, current position, turn count, what's been collected/defeated, and allowed actions.</p>
+      </div>
+      <div class="loop__arrow reveal">→</div>
+      <div class="loop__stage reveal">
+        <div class="loop__num">2</div>
+        <div class="loop__icon">🧠</div>
+        <h3>You decide</h3>
+        <p>Your <code>choose_action</code> reads the snapshot and returns exactly one <code>WorldAction</code> — e.g. <code>MOVE_EAST</code> or <code>COLLECT</code> with a target id.</p>
+      </div>
+      <div class="loop__arrow reveal">→</div>
+      <div class="loop__stage reveal">
+        <div class="loop__num">3</div>
+        <div class="loop__icon">⚖️</div>
+        <h3>Runtime validates</h3>
+        <p>The runtime checks the action against the rules — is it legal, in bounds, the right target? If not, the run ends immediately.</p>
+      </div>
+      <div class="loop__arrow reveal">→</div>
+      <div class="loop__stage reveal">
+        <div class="loop__num">4</div>
+        <div class="loop__icon">🔁</div>
+        <h3>Next snapshot</h3>
+        <p>The action is applied, the turn advances, and a fresh snapshot is sent back. You <strong>always read the new snapshot</strong> — don't assume your last move succeeded.</p>
+      </div>
+    </div>
+
+    <p class="loop__note reveal">The loop repeats until the explorer returns <code>EXIT</code> on the exit tile, or the run hits a limit. You never move sprites or mutate state yourself — you only <em>intend</em>.</p>
+  </div>
+</section>
+
+<!-- ======================= ACTIONS ======================= -->
+<section class="section" id="actions">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">The vocabulary</p>
+      <h2>What an action can be</h2>
+    </div>
+
+    <div class="actions">
+      <div class="action reveal" data-tone="move">
+        <div class="action__keys">MOVE_NORTH / SOUTH / WEST / EAST</div>
+        <p>Move one tile in that direction — only if the destination is in-bounds floor and not occupied by an undefeated enemy at action start.</p>
+      </div>
+      <div class="action reveal" data-tone="collect">
+        <div class="action__keys">COLLECT</div>
+        <p>Target an artifact on the tile you're standing on. Awards its value once, keeps you in place. You must be on the tile.</p>
+      </div>
+      <div class="action reveal" data-tone="engage">
+        <div class="action__keys">ENGAGE</div>
+        <p>Target a static enemy on an <strong>adjacent</strong> tile. Adds its penalty once and clears it — you stay where you are.</p>
+      </div>
+      <div class="action reveal" data-tone="wait">
+        <div class="action__keys">WAIT</div>
+        <p>Consume a turn without moving. Useful for timing past patrols; a later patrol step can still collide.</p>
+      </div>
+      <div class="action reveal" data-tone="exit">
+        <div class="action__keys">EXIT</div>
+        <p>Return this while standing on the exit tile. Arriving is <em>not</em> finishing — you must explicitly EXIT, and it counts as one accepted action.</p>
+      </div>
+      <div class="action reveal" data-tone="disabled">
+        <div class="action__keys">INTERACT <span class="chip">disabled</span></div>
+        <p>Defined in the enum but turned off in the public gameplay. Don't return it.</p>
+      </div>
+    </div>
+
+    <div class="scoring reveal">
+      <div class="scoring__head">
+        <h3>How scoring works</h3>
+        <p>Keep the <strong>total cost</strong> low — that's the score.</p>
+      </div>
+      <div class="scoring__row">
+        <div class="scoring__item">
+          <span class="scoring__big">actions</span>
+          <span class="scoring__op">+</span>
+          <span class="scoring__big">penalties</span>
+          <span class="scoring__op">=</span>
+          <span class="scoring__big accent">total cost</span>
+        </div>
+        <p class="scoring__note">
+          Every accepted action (moves, COLLECT, ENGAGE, EXIT, WAIT) counts as 1.
+          Encounter penalties are added on top. Collecting an artifact adds its points, so a
+          20-point reward that costs one extra action nets <strong>+15</strong> if the penalty rate is 5.
+        </p>
+      </div>
+      <div class="scoring__tip reveal">
+        💡 <strong>Classic trap:</strong> a reward can cost more to collect than it's worth. Always compare route costs before deciding.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SEVEN CASES ======================= -->
+<section class="section" id="cases">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">The path to mastery</p>
+      <h2>The seven base cases</h2>
+      <p class="section__lead">Each case adds one new idea. The goal is a <em>single</em> flexible solution that handles all of them — not seven hard-coded programs.</p>
+    </div>
+
+    <div class="cases">
+      <div class="cases__tabs reveal" role="tablist" aria-label="Seven base cases">
+        <button class="cases__tab is-active" role="tab" data-case="0" aria-selected="true"><span class="cases__n">1</span> Straight path</button>
+        <button class="cases__tab" role="tab" data-case="1" aria-selected="false"><span class="cases__n">2</span> Bent path</button>
+        <button class="cases__tab" role="tab" data-case="2" aria-selected="false"><span class="cases__n">3</span> + Artifacts</button>
+        <button class="cases__tab" role="tab" data-case="3" aria-selected="false"><span class="cases__n">4</span> Bent + artifacts</button>
+        <button class="cases__tab" role="tab" data-case="4" aria-selected="false"><span class="cases__n">5</span> Cyclic path</button>
+        <button class="cases__tab" role="tab" data-case="5" aria-selected="false"><span class="cases__n">6</span> + Enemy</button>
+        <button class="cases__tab" role="tab" data-case="6" aria-selected="false"><span class="cases__n">7</span> Short vs long</button>
+      </div>
+
+      <div class="cases__panel reveal" id="casePanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= EXAMPLE ======================= -->
+<section class="section" id="example">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">See it in code</p>
+      <h2>A minimal controller</h2>
+      <p class="section__lead">This handles the straight path: compare positions, move toward the exit, and EXIT when you arrive. It's a starting skeleton, not the final answer.</p>
+    </div>
+
+    <div class="example reveal">
+      <div class="example__head">
+        <span class="example__dot"></span><span class="example__dot"></span><span class="example__dot"></span>
+        <span class="example__file">src/student/controller.py</span>
+      </div>
+      <pre class="codeblock"><code><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="k">from</span> src.api <span class="k">import</span> WorldAction, WorldActionType
+
+<span class="k">class</span> <span class="cl">AgentController</span>:
+    <span class="k">def</span> <span class="fn">choose_action</span>(<span class="slf">self</span>, state, agent_id):
+        pos = state.agent_position
+        exit_pos = state.level.exit
+
+        <span class="c"># 1) Already standing on the exit → leave.</span>
+        <span class="k">if</span> pos == exit_pos:
+            <span class="k">return</span> WorldAction(WorldActionType.<span class="ac">EXIT</span>)
+
+        <span class="c"># 2) Move east if the exit is to the east.</span>
+        <span class="k">if</span> pos.column &lt; exit_pos.column:
+            <span class="k">return</span> WorldAction(WorldActionType.<span class="ac">MOVE_EAST</span>)
+
+        <span class="c"># 3) Otherwise move toward it vertically.</span>
+        <span class="k">if</span> pos.row &lt; exit_pos.row:
+            <span class="k">return</span> WorldAction(WorldActionType.<span class="ac">MOVE_SOUTH</span>)
+        <span class="k">return</span> WorldAction(WorldActionType.<span class="ac">MOVE_NORTH</span>)</code></pre>
+      <div class="example__notes">
+        <p class="reveal">🟢 <strong>Why this works:</strong> it only chooses legal moves toward the exit and explicitly EXITs — a hard-coded "move east forever" would miss the exit requirement and break on any other layout.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= API ======================= -->
+<section class="section" id="api">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">Cheat sheet</p>
+      <h2>API quick reference</h2>
+      <p class="section__lead">Everything is imported from <code>src.api</code>. These are the names you'll touch most.</p>
+    </div>
+
+    <div class="api reveal">
+      <div class="api__grid">
+        <div class="api__col">
+          <h3>Provided values</h3>
+          <ul class="api__list">
+            <li><code>Position(row, column)</code> — a coordinate; <code>.manhattan_distance(other)</code></li>
+            <li><code>Terrain(terrain_rows)</code> — <code>.rows</code>, <code>.columns</code>, <code>.is_traversable(pos)</code></li>
+            <li><code>LevelDefinition</code> — terrain, start, exit, character, artifacts, enemies, patrols</li>
+            <li><code>WorldSnapshot</code> — current state passed to your controller</li>
+            <li><code>WorldAction(type, *, target_id=None)</code> — the action you return; <code>WorldAction.wait()</code></li>
+            <li><code>TerrainGenerationSpec</code> / <code>LevelSpecification</code> — the requests the generators receive</li>
+          </ul>
+        </div>
+        <div class="api__col">
+          <h3>Snapshot fields</h3>
+          <ul class="api__list">
+            <li><code>level</code> — the initial world (still present after changes)</li>
+            <li><code>agent_position</code> — where the explorer is now</li>
+            <li><code>turn</code> — count of accepted actions so far</li>
+            <li><code>collected_artifact_ids</code> / <code>defeated_enemy_ids</code></li>
+            <li><code>allowed_actions</code> — the action types currently allowed</li>
+            <li><code>enemy_observations</code> — current enemy positions (important for patrols)</li>
+            <li><code>base_points</code>, <code>deduction_rate</code>, <code>baseline_cost</code>, <code>max_turns</code>, <code>deadline_turn</code></li>
+          </ul>
+        </div>
+        <div class="api__col">
+          <h3>Action rules (reminder)</h3>
+          <ul class="api__list">
+            <li>Moves require in-bounds, unoccupied floor.</li>
+            <li><code>COLLECT</code> targets an artifact on <em>your</em> tile.</li>
+            <li><code>ENGAGE</code> targets an adjacent static enemy.</li>
+            <li><code>EXIT</code> only on the exit tile; counts as an action.</li>
+            <li>Returning a bare string like <code>"east"</code> or <code>None</code> is malformed — always return a <code>WorldAction</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="api__foot">Need exact signatures? The workbench's Help and the bundled <code>API_REFERENCE.md</code> have the full detail.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= WORKBENCH ======================= -->
+<section class="section" id="workbench">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">How to practice</p>
+      <h2>Using the workbench</h2>
+    </div>
+
+    <div class="workbench">
+      <div class="wb reveal">
+        <div class="wb__icon">▶</div>
+        <div><h3>Run solution</h3><p>Runs your actual source against the selected scenario. Unfinished components give specific guidance — that's normal at the start.</p></div>
+      </div>
+      <div class="wb reveal">
+        <div class="wb__icon">👁</div>
+        <div><h3>Watch example</h3><p>A supplied recording that shows <em>allowed</em> behavior. It doesn't complete or replace your code — it's a reference.</p></div>
+      </div>
+      <div class="wb reveal">
+        <div class="wb__icon">🎞</div>
+        <div><h3>Play / Previous / Next</h3><p>Step through recorded frames — action, position, remaining objects, and metrics together. No re-running.</p></div>
+      </div>
+      <div class="wb reveal">
+        <div class="wb__icon">🔁</div>
+        <div><h3>Run again</h3><p>After editing, run again for a fresh result. Earlier recordings stay in <strong>Saved runs</strong>. Save your file first!</p></div>
+      </div>
+      <div class="wb reveal">
+        <div class="wb__icon">🧪</div>
+        <div><h3>Test generators</h3><p>Select terrain or level, pick a requirement set, and view the requirements. Test your terrain generator independently before wiring up levels.</p></div>
+      </div>
+      <div class="wb reveal">
+        <div class="wb__icon">🗂</div>
+        <div><h3>Keep everything in src/student</h3><p>Only touch your six files. The framework, renderer, setup, and art stay as provided.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="footer">
+  <div class="shell footer__inner">
+    <div class="footer__brand">
+      <span class="nav__logo" aria-hidden="true">◆</span> Adventure Explorer
+    </div>
+    <p class="footer__note">An interactive study guide for the Adventure workbench — six components, seven cases, one decision at a time.</p>
+    <p class="footer__meta">Built to be read, presented, and understood. <span class="footer__heart">♥</span></p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
