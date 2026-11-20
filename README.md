@@ -8,6 +8,7 @@ A visual, presentable study guide for the Adventure workbench.
 - `style.css` — design system + layout
 - `app.js` — interactive case boards, nav, scroll effects
 - `walkthrough.js` — the line-by-line code walkthrough of `src/student/`
+- `visualizer.js` — interactive demos (turn cycle, patrol clock, pathfinding)
 - `README.md` — this file
 
 ## Run locally
