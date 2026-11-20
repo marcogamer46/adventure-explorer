@@ -243,14 +243,40 @@
 
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
-      tabs.forEach(function (t) {
-        t.classList.remove("is-active");
-        t.setAttribute("aria-selected", "false");
-      });
-      tab.classList.add("is-active");
-      tab.setAttribute("aria-selected", "true");
-      renderCase(parseInt(tab.getAttribute("data-case"), 10));
+      activateCaseTab(tab);
     });
+  });
+
+  /* Roving tabindex + arrow-key navigation for the case tabs */
+  var activateCaseTab = function (tab) {
+    tabs.forEach(function (t) {
+      t.classList.remove("is-active");
+      t.setAttribute("aria-selected", "false");
+      t.tabIndex = -1;
+    });
+    tab.classList.add("is-active");
+    tab.setAttribute("aria-selected", "true");
+    tab.tabIndex = 0;
+    renderCase(parseInt(tab.getAttribute("data-case"), 10));
+  };
+
+  function onTablistKeydown(e) {
+    var idx = tabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    var next = null;
+    if (e.key === "ArrowRight") next = (idx + 1) % tabs.length;
+    else if (e.key === "ArrowLeft") next = (idx - 1 + tabs.length) % tabs.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = tabs.length - 1;
+    if (next != null) {
+      e.preventDefault();
+      activateCaseTab(tabs[next]);
+      tabs[next].focus();
+    }
+  }
+  tabs.forEach(function (tab, i) {
+    tab.tabIndex = i === 0 ? 0 : -1;
+    tab.addEventListener("keydown", onTablistKeydown);
   });
 
   if (panel) renderCase(0);

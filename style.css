@@ -596,6 +596,20 @@ code { font-family: var(--font-mono); font-size: 0.88em; color: #c7d2fe; backgro
 .game__feedback.is-ok { border-color: rgba(110,231,183,.45); color: #b7f1d8; }
 .game__feedback.is-bad { border-color: rgba(252,165,165,.5); color: #ffc8c8; }
 
+/* ---------- Accessibility ---------- */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 200;
+  background: var(--grad); color: #0a0c1a;
+  font-family: var(--font-display); font-weight: 700; font-size: 14px;
+  padding: 12px 22px; border-radius: 0 0 14px 0;
+}
+.skip-link:focus { left: 0; }
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 /* ---------- Animations ---------- */
 
 /* Aurora slow drift */

@@ -322,6 +322,8 @@
   var boardWrap = el("div", "game__boardwrap");
   var board = el("div", "game__board", "");
   board.id = "gameBoard";
+  board.setAttribute("role", "group");
+  board.setAttribute("aria-label", "Game board — S is start, E is exit, the glowing tile is your explorer");
   boardWrap.appendChild(board);
   root.appendChild(boardWrap);
 
@@ -348,6 +350,8 @@
 
   var fb = el("div", "game__feedback", "");
   fb.id = "gameFeedback";
+  fb.setAttribute("role", "status");
+  fb.setAttribute("aria-live", "polite");
   root.appendChild(fb);
 
   feedback("Level 1 · Move east to reach the exit — then EXIT. The rules are the runtime's rules.", true);

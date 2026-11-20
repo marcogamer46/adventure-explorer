@@ -682,14 +682,39 @@ class LevelGenerator:
 
   fileTabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
-      fileTabs.forEach(function (t) {
-        t.classList.remove("is-active");
-        t.setAttribute("aria-selected", "false");
-      });
-      tab.classList.add("is-active");
-      tab.setAttribute("aria-selected", "true");
-      renderFile(tab.getAttribute("data-file"));
+      activateFileTab(tab);
     });
+  });
+
+  function activateFileTab(tab) {
+    fileTabs.forEach(function (t) {
+      t.classList.remove("is-active");
+      t.setAttribute("aria-selected", "false");
+      t.tabIndex = -1;
+    });
+    tab.classList.add("is-active");
+    tab.setAttribute("aria-selected", "true");
+    tab.tabIndex = 0;
+    renderFile(tab.getAttribute("data-file"));
+  }
+
+  function onFileTabsKeydown(e) {
+    var idx = fileTabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    var next = null;
+    if (e.key === "ArrowRight") next = (idx + 1) % fileTabs.length;
+    else if (e.key === "ArrowLeft") next = (idx - 1 + fileTabs.length) % fileTabs.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = fileTabs.length - 1;
+    if (next != null) {
+      e.preventDefault();
+      activateFileTab(fileTabs[next]);
+      fileTabs[next].focus();
+    }
+  }
+  fileTabs.forEach(function (tab, i) {
+    tab.tabIndex = i === 0 ? 0 : -1;
+    tab.addEventListener("keydown", onFileTabsKeydown);
   });
 
   if (stage) renderFile("character");
