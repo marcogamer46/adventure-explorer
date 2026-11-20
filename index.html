@@ -31,6 +31,7 @@
       <a href="#actions">Actions</a>
       <a href="#cases">7 Cases</a>
       <a href="#example">Example</a>
+      <a href="#code">Walkthrough</a>
       <a href="#api">API</a>
       <a href="#workbench">Workbench</a>
     </nav>
@@ -432,6 +433,32 @@ generate_level(specification, seed)
   </div>
 </section>
 
+<!-- ======================= CODE WALKTHROUGH ======================= -->
+<section class="section" id="code">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">Read the real code</p>
+      <h2>Walkthrough: <em>your</em> six files</h2>
+      <p class="section__lead">Here's how each file in <code>src/student/</code> actually works, broken down line-by-line. Pick a file to step through it.</p>
+    </div>
+
+    <div class="wt">
+      <div class="wt__files reveal" role="tablist" aria-label="Student files">
+        <button class="wt__file is-active" role="tab" data-file="character" aria-selected="true">character.py</button>
+        <button class="wt__file" role="tab" data-file="artifact" aria-selected="false">artifact.py</button>
+        <button class="wt__file" role="tab" data-file="enemy" aria-selected="false">enemy.py</button>
+        <button class="wt__file" role="tab" data-file="controller" aria-selected="false">controller.py</button>
+        <button class="wt__file" role="tab" data-file="terrain" aria-selected="false">terrain_generator.py</button>
+        <button class="wt__file" role="tab" data-file="level" aria-selected="false">level_generator.py</button>
+      </div>
+
+      <div class="wt__stage reveal" id="wtStage">
+        <!-- Filled by app.js from the WALKTHROUGH data -->
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ======================= API ======================= -->
 <section class="section" id="api">
   <div class="shell">
@@ -531,6 +558,7 @@ generate_level(specification, seed)
   </div>
 </footer>
 
+<script src="walkthrough.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
