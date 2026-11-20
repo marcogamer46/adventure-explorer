@@ -30,6 +30,7 @@
       <a href="#loop">The Loop</a>
       <a href="#actions">Actions</a>
       <a href="#cases">7 Cases</a>
+      <a href="#play">Play</a>
       <a href="#example">Example</a>
       <a href="#code">Walkthrough</a>
       <a href="#api">API</a>
@@ -392,6 +393,21 @@ generate_level(specification, seed)
   </div>
 </section>
 
+<!-- ======================= PLAY ======================= -->
+<section class="section" id="play">
+  <div class="shell">
+    <div class="section__head">
+      <p class="kicker">Play it yourself</p>
+      <h2>Be the <em>controller</em></h2>
+      <p class="section__lead">You're now <code>choose_action</code>. Each turn, pick one action for the explorer — exactly like your code would. The rules you feel here are the rules the runtime enforces.</p>
+    </div>
+
+    <div class="game reveal" id="gameRoot">
+      <!-- Built by game.js -->
+    </div>
+  </div>
+</section>
+
 <!-- ======================= EXAMPLE ======================= -->
 <section class="section" id="example">
   <div class="shell">
@@ -565,5 +581,6 @@ generate_level(specification, seed)
 <script src="walkthrough.js"></script>
 <script src="visualizer.js"></script>
 <script src="app.js"></script>
+<script src="game.js"></script>
 </body>
 </html>

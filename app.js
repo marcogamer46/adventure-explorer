@@ -153,9 +153,12 @@
     var startKey = data.start[0] + "," + data.start[1];
     var exitKey = data.exit[0] + "," + data.exit[1];
 
+    var tileIdx = 0;
     for (var r = 0; r < data.rows.length; r++) {
       for (var c = 0; c < cols; c++) {
         var tile = document.createElement("div");
+        tile.style.animationDelay = (tileIdx * 18) + "ms";
+        tileIdx++;
         var ch = data.rows[r][c];
         var key = r + "," + c;
 
@@ -282,6 +285,23 @@
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+
+  /* ---------- Ambient parallax (stars follow scroll; aurora drifts on its own) ---------- */
+  var starsEl = document.querySelector(".stars");
+  if (starsEl) {
+    var pTick = false;
+    var onParallax = function () {
+      if (!pTick) {
+        pTick = true;
+        requestAnimationFrame(function () {
+          starsEl.style.transform = "translateY(" + (window.scrollY * 0.14) + "px)";
+          pTick = false;
+        });
+      }
+    };
+    window.addEventListener("scroll", onParallax, { passive: true });
+    onParallax();
+  }
 
   var navToggle = document.getElementById("navToggle");
   var navLinks = document.getElementById("navLinks");

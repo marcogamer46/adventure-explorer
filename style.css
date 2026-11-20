@@ -533,6 +533,195 @@ code { font-family: var(--font-mono); font-size: 0.88em; color: #c7d2fe; backgro
   .explorer { animation-duration: 7s; }
 }
 
+/* ---------- Game: "Be the controller" ---------- */
+.game { display: flex; flex-direction: column; gap: 18px; }
+.game__head h3 { font-family: var(--font-display); font-size: 22px; }
+.game__levels { display: flex; flex-wrap: wrap; gap: 8px; }
+.game__level {
+  font-family: var(--font-display); font-size: 14px; color: var(--muted);
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px;
+  padding: 8px 15px; cursor: pointer; transition: all .25s;
+}
+.game__level:hover { border-color: var(--violet); color: #fff; }
+.game__level.is-active { background: var(--grad); color: #0a0e1c; font-weight: 700; border-color: transparent; }
+.game__boardwrap { display: flex; justify-content: center; }
+.game__board {
+  display: grid; gap: 6px; background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px;
+  width: min(480px, 100%);
+}
+.game__board .tile { aspect-ratio: 1; font-size: 18px; position: relative; transition: box-shadow .2s; display: grid; place-items: center; }
+.game__board .tile--start::after, .game__board .tile--exit::after {
+  content: attr(data-label); font-family: var(--font-display); font-weight: 700;
+  font-size: 12px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.7);
+}
+.game__board .tile.is-player { box-shadow: 0 0 0 3px rgba(167,139,250,.45), 0 0 26px rgba(96,165,250,.85); z-index: 2; }
+.game__board .tile.is-player::before {
+  content: "·"; position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 22px; color: #fff; text-shadow: 0 0 8px rgba(255,255,255,.9); font-weight: 800;
+}
+.game__meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.game__meta > div {
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; display: flex; align-items: baseline; gap: 8px; justify-content: space-between;
+}
+.game__meta span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.game__meta strong { font-family: var(--font-mono); font-size: 17px; color: #fff; }
+.game__meta strong:empty, .game__meta #gameNet { color: var(--violet); }
+.game__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.game__gutter { flex: 1; }
+.game__act {
+  font-family: var(--font-display); font-size: 13.5px; color: #fff;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 13px; cursor: pointer; transition: all .2s; display: inline-flex; gap: 6px; align-items: center;
+}
+.game__act i { font-style: normal; color: var(--muted); font-size: 12px; }
+.game__act:hover:not(:disabled) { border-color: var(--violet); transform: translateY(-1px); }
+.game__act:disabled { opacity: .4; cursor: not-allowed; }
+.game__act--move { font-size: 16px; min-width: 60px; justify-content: center; }
+.game__act--move i { font-size: 11px; }
+.game__act--special { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.4); }
+.game__act--replay { margin-left: auto; color: var(--violet); border-color: rgba(167,139,250,.4); }
+.game__tip { font-size: 13.5px; color: var(--muted); font-style: italic; }
+.game__feedback {
+  font-size: 14px; border-radius: 12px; padding: 13px 16px;
+  border: 1px solid var(--border); background: var(--bg-2); min-height: 48px;
+}
+.game__feedback.is-ok { border-color: rgba(110,231,183,.45); color: #b7f1d8; }
+.game__feedback.is-bad { border-color: rgba(252,165,165,.5); color: #ffc8c8; }
+
+/* ---------- Animations ---------- */
+
+/* Aurora slow drift */
+.aurora { animation: auroraDrift 36s ease-in-out infinite alternate; }
+@keyframes auroraDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-2.5%, 1.5%) scale(1.07); }
+  100% { transform: translate(2%, -1.5%) scale(1.04); }
+}
+
+/* Nav progress shimmer */
+.nav__progress span {
+  background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
+  background-size: 300% 100%;
+  animation: barShimmer 5s linear infinite;
+}
+@keyframes barShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Primary CTA glow pulse */
+.btn--primary { animation: btnPulse 3.2s ease-in-out infinite; }
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(167, 139, 250, .35); }
+  50% { box-shadow: 0 8px 48px rgba(167, 139, 250, .65); }
+}
+
+/* Gradient-text shimmer on key headings */
+.section__head h2 em, .hero__title em {
+  background-size: 220% auto;
+  animation: gradShift 7s ease infinite;
+}
+@keyframes gradShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Hero entrance stagger (only when motion allowed) */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__eyebrow, .hero__title, .hero__sub, .hero__cta, .hero__stats {
+    opacity: 0;
+    animation: heroIn .8s cubic-bezier(.2, .7, .3, 1) forwards;
+  }
+  .hero__eyebrow { animation-delay: .05s; }
+  .hero__title { animation-delay: .16s; }
+  .hero__sub { animation-delay: .28s; }
+  .hero__cta { animation-delay: .4s; }
+  .hero__stats { animation-delay: .52s; }
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* Gentle float on the hero demo card */
+.hero__demo { animation: demoFloat 7s ease-in-out infinite; }
+@keyframes demoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Card sheen sweep on hover */
+.overview__card, .action, .wb, .viz__card { position: relative; overflow: hidden; }
+.overview__card::after, .component::after, .action::after, .wb::after, .viz__card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, .07) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform .8s ease;
+}
+.overview__card:hover::after, .component:hover::after, .action:hover::after,
+.wb:hover::after, .viz__card:hover::after { transform: translateX(120%); }
+
+/* Nav link underline grows on hover */
+.nav__links a::before {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: 3px; height: 2px;
+  background: var(--grad); border-radius: 2px;
+  transform: scaleX(0); transform-origin: left; transition: transform .3s ease;
+}
+.nav__links a:hover::before { transform: scaleX(1); }
+
+/* Loop arrows float (desktop only, to not fight the mobile rotation) */
+@media (min-width: 1021px) {
+  .loop__arrow { animation: arrowFloat 2.6s ease-in-out infinite; }
+  @keyframes arrowFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+}
+
+/* Footer heart beat */
+.footer__heart { display: inline-block; animation: heartBeat 1.6s ease-in-out infinite; }
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+}
+
+/* Tile pop-in for case boards (staggered via inline delay from JS) */
+.board .tile,
+.game__board.is-pop .tile {
+  animation: tileIn .5s cubic-bezier(.2, .7, .3, 1) backwards;
+}
+@keyframes tileIn {
+  from { opacity: 0; transform: scale(.85) translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Game: player glow pulse */
+.game__board .tile.is-player {
+  animation: playerGlow 2.2s ease-in-out infinite;
+}
+@keyframes playerGlow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(167, 139, 250, .45), 0 0 26px rgba(96, 165, 250, .85); }
+  50% { box-shadow: 0 0 0 5px rgba(167, 139, 250, .6), 0 0 42px rgba(96, 165, 250, 1); }
+}
+
+/* Game: feedback reactions */
+.game__feedback.is-bad { animation: shake .4s ease; }
+.game__feedback.is-ok { animation: okPulse .4s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@keyframes okPulse {
+  0% { transform: scale(.98); }
+  100% { transform: scale(1); }
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
